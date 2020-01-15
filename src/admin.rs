@@ -4,14 +4,14 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::sync::Arc;
 
-use crate::router::{Route, RouteMethod, Router, RouterError};
+use crate::router::{Route, RouteHandler, RouteMethod, Router, RouterError};
 use crate::utils::GenericResult;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct CreateRouteRequest {
     method: RouteMethod,
     path: String,
-    handler: String,
+    handler: RouteHandler,
 }
 impl CreateRouteRequest {
     pub async fn new(req: Request<Body>) -> GenericResult<CreateRouteRequest> {
@@ -51,6 +51,12 @@ pub async fn handle_request(
                     Err(error) => match error {
                         RouterError::RouteAlreadyExists => Ok(Response::builder()
                             .status(StatusCode::CONFLICT)
+                            .body(Body::from(
+                                json!({ "error": format!("{}", error) }).to_string(),
+                            ))
+                            .unwrap()),
+                        RouterError::HandlerExecutionFailed => Ok(Response::builder()
+                            .status(StatusCode::INTERNAL_SERVER_ERROR)
                             .body(Body::from(
                                 json!({ "error": format!("{}", error) }).to_string(),
                             ))

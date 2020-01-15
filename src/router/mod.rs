@@ -1,60 +1,16 @@
+mod error;
+mod route;
+
 use arc_swap::ArcSwap;
-use err_derive::Error;
-use hyper::{Body, Method, Request, Response, StatusCode};
-use serde::{Deserialize, Serialize};
+use hyper::{Body, Request, Response, StatusCode};
+use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::utils::GenericResult;
 
-#[derive(Debug, Error)]
-pub enum RouterError {
-    #[error(display = "a conflicting route already exists in the router")]
-    RouteAlreadyExists,
-}
-
-#[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Clone)]
-pub enum RouteMethod {
-    OPTIONS,
-    GET,
-    POST,
-    PUT,
-    DELETE,
-    HEAD,
-    TRACE,
-    CONNECT,
-    PATCH,
-}
-
-impl RouteMethod {
-    pub fn from_hyper_method(method: &Method) -> Self {
-        match method {
-            &Method::OPTIONS => Self::OPTIONS,
-            &Method::GET => Self::GET,
-            &Method::POST => Self::POST,
-            &Method::PUT => Self::PUT,
-            &Method::DELETE => Self::DELETE,
-            &Method::HEAD => Self::HEAD,
-            &Method::TRACE => Self::TRACE,
-            &Method::CONNECT => Self::CONNECT,
-            &Method::PATCH => Self::PATCH,
-            _ => panic!(format!("unknown method: {:?}", method)),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
-pub struct Route {
-    pub path: String,
-    pub method: RouteMethod,
-    pub handler: String,
-}
-
-impl Route {
-    pub fn conflicts(&self, other: &Route) -> bool {
-        self.path == other.path && self.method == other.method
-    }
-}
+pub use error::RouterError;
+pub use route::{Route, RouteHandler, RouteMethod};
 
 #[derive(Debug, Clone)]
 pub struct Router {
@@ -70,7 +26,7 @@ impl Router {
         }
     }
 
-    pub fn find(&self, method: &RouteMethod, path: &str) -> Option<&str> {
+    pub fn find(&self, method: &RouteMethod, path: &str) -> Option<&RouteHandler> {
         match self.index.get(path) {
             Some(methods) => match methods.get(method) {
                 Some(&route_index) => Some(&self.routes[route_index].handler),
@@ -108,29 +64,31 @@ impl Router {
     }
 }
 
-async fn calc(a: i32, b: i32) -> i32 {
-    a + b
-}
-
 pub async fn handle_request(
     req: Request<Body>,
     router: Arc<ArcSwap<Router>>,
 ) -> GenericResult<Response<Body>> {
     let router = router.load();
 
-    match router.find(
-        &RouteMethod::from_hyper_method(&req.method()),
-        req.uri().path(),
-    ) {
-        Some(handler) => {
-            calc(2, 3).await;
-            Ok(Response::new(Body::from(String::from(handler))))
-        }
+    match router.find(&RouteMethod::from_hyper(&req.method()), req.uri().path()) {
+        Some(handler) => match handler.run() {
+            Ok(ret) => Ok(Response::builder()
+                .body(Body::from(json!({ "result": ret }).to_string()))
+                .unwrap()),
+            Err(error) => Ok(Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(
+                    json!({ "error": format!("{}", error) }).to_string(),
+                ))
+                .unwrap()),
+        },
         None => {
             // Return 404 not found response.
             Ok(Response::builder()
                 .status(StatusCode::NOT_FOUND)
-                .body(Body::from("Not Found"))
+                .body(Body::from(
+                    json!({ "error": "route not found" }).to_string(),
+                ))
                 .unwrap())
         }
     }
