@@ -36,42 +36,67 @@ impl RouteMethod {
     }
 }
 
-// #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-// pub struct Route {
-//     method: RouteMethod,
-//     path: String,
-// }
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct Route {
+    pub path: String,
+    pub method: RouteMethod,
+    pub handler: String,
+}
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Router {
-    routes: HashMap<String, HashMap<RouteMethod, String>>,
+    pub routes: Vec<Route>,
+    index: HashMap<String, HashMap<RouteMethod, usize>>,
 }
 
 impl Router {
     pub fn new() -> Self {
         Self {
-            routes: HashMap::new(),
+            routes: Vec::new(),
+            index: HashMap::new(),
         }
     }
 
-    pub fn find(&self, method: &Method, path: &str) -> Option<&String> {
-        match self.routes.get(path) {
-            Some(methods) => methods.get(&RouteMethod::from_hyper_method(&method)),
+    pub fn find(&self, method: &RouteMethod, path: &str) -> Option<&str> {
+        match self.index.get(path) {
+            Some(methods) => match methods.get(method) {
+                Some(&route_index) => Some(&self.routes[route_index].handler),
+                None => None,
+            },
             None => None,
         }
     }
 
-    pub fn add(&mut self, method: Method, path: String, handler: String) {
-        let method = RouteMethod::from_hyper_method(&method);
-
-        match self.routes.get_mut(&path) {
-            Some(methods) => {
-                methods.insert(method, handler);
+    pub fn add(&mut self, route: Route) {
+        // Remove the route if it already exists
+        match self
+            .routes
+            .iter()
+            .position(|r| r.path == route.path && r.method == route.method)
+        {
+            Some(index) => {
+                self.routes.remove(index);
             }
-            None => {
-                let mut methods = HashMap::new();
-                methods.insert(method, handler);
-                self.routes.insert(path, methods);
+            None => (),
+        }
+
+        // Create the route and push it to the list
+        self.routes.push(route);
+
+        self.rebuild_index();
+    }
+
+    fn rebuild_index(&mut self) {
+        for (route_index, route) in self.routes.iter().enumerate() {
+            match self.index.get_mut(&route.path) {
+                Some(methods) => {
+                    methods.insert(route.method.clone(), route_index);
+                }
+                None => {
+                    let mut methods = HashMap::new();
+                    methods.insert(route.method.clone(), route_index);
+                    self.index.insert(route.path.clone(), methods);
+                }
             }
         }
     }
@@ -87,10 +112,13 @@ pub async fn handle_request(
 ) -> GenericResult<Response<Body>> {
     let router = router.load();
 
-    match router.find(req.method(), req.uri().path()) {
-        Some(route) => {
+    match router.find(
+        &RouteMethod::from_hyper_method(&req.method()),
+        req.uri().path(),
+    ) {
+        Some(handler) => {
             calc(2, 3).await;
-            Ok(Response::new(Body::from(String::from(route))))
+            Ok(Response::new(Body::from(String::from(handler))))
         }
         None => {
             // Return 404 not found response.
