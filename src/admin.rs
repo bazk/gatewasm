@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::sync::Arc;
 
-use crate::router::{Route, RouteMethod, Router};
+use crate::router::{Route, RouteMethod, Router, RouterError};
 use crate::utils::GenericResult;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -43,10 +43,20 @@ pub async fn handle_request(
                 };
 
                 let mut new_router = Router::clone(&router);
-                new_router.add(route.clone());
-                router_arc.store(Arc::new(new_router));
-
-                Ok(Response::new(Body::from(serde_json::to_string(&route)?)))
+                match new_router.add(route.clone()) {
+                    Ok(_) => {
+                        router_arc.store(Arc::new(new_router));
+                        Ok(Response::new(Body::from(serde_json::to_string(&route)?)))
+                    }
+                    Err(error) => match error {
+                        RouterError::RouteAlreadyExists => Ok(Response::builder()
+                            .status(StatusCode::CONFLICT)
+                            .body(Body::from(
+                                json!({ "error": format!("{}", error) }).to_string(),
+                            ))
+                            .unwrap()),
+                    },
+                }
             }
             Err(error) => Ok(Response::builder()
                 .status(StatusCode::BAD_REQUEST)

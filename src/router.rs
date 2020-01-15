@@ -1,10 +1,17 @@
 use arc_swap::ArcSwap;
+use err_derive::Error;
 use hyper::{Body, Method, Request, Response, StatusCode};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::utils::GenericResult;
+
+#[derive(Debug, Error)]
+pub enum RouterError {
+    #[error(display = "a conflicting route already exists in the router")]
+    RouteAlreadyExists,
+}
 
 #[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Clone)]
 pub enum RouteMethod {
@@ -43,6 +50,12 @@ pub struct Route {
     pub handler: String,
 }
 
+impl Route {
+    pub fn conflicts(&self, other: &Route) -> bool {
+        self.path == other.path && self.method == other.method
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Router {
     pub routes: Vec<Route>,
@@ -67,23 +80,16 @@ impl Router {
         }
     }
 
-    pub fn add(&mut self, route: Route) {
-        // Remove the route if it already exists
-        match self
-            .routes
-            .iter()
-            .position(|r| r.path == route.path && r.method == route.method)
-        {
-            Some(index) => {
-                self.routes.remove(index);
+    pub fn add(&mut self, route: Route) -> Result<(), RouterError> {
+        for r in self.routes.iter() {
+            if r.conflicts(&route) {
+                return Err(RouterError::RouteAlreadyExists);
             }
-            None => (),
         }
 
-        // Create the route and push it to the list
         self.routes.push(route);
-
         self.rebuild_index();
+        Ok(())
     }
 
     fn rebuild_index(&mut self) {
