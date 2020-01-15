@@ -36,6 +36,7 @@ impl RouteMethod {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct RouteHandler {
+    #[serde(with = "crate::utils::serde_base64")]
     code: Vec<u8>,
 }
 

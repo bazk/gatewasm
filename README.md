@@ -2,12 +2,22 @@
 
 ## Usage
 
+> Create a route
+
 ```
 curl -XPOST \
-  -d'{"method": "GET", "path": "/add_one", "handler": {"code": [0, 97, 115, 109, 1, 0, 0, 0, 1, 6, 1, 96, 1, 127, 1, 127, 3, 2, 1, 0, 7, 11, 1, 7, 97, 100, 100, 95, 111, 110, 101, 0, 0, 10, 9, 1, 7, 0, 32, 0, 65, 1, 106, 11, 0, 26, 4, 110, 97, 109, 101, 1, 10, 1, 0, 7, 97, 100, 100, 95, 111, 110, 101, 2, 7, 1, 0, 1, 0, 2, 112, 48 ] } }' \
+  -d'{"method": "GET", "path": "/add_one", "handler": {"code": "AGFzbQEAAAABBgFgAX8BfwMCAQAHCwEHYWRkX29uZQAACgkBBwAgAEEBagsAGgRuYW1lAQoBAAdhZGRfb25lAgcBAAEAAnAw" } }' \
   localhost:8900/routes
 ```
 
+> Test the created route
+
 ```
 curl localhost:8700/add_one
+```
+
+> List all routes
+
+```
+curl localhost:8900/routes
 ```
