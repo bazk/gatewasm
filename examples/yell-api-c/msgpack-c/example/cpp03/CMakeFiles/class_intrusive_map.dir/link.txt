@@ -1,0 +1,1 @@
+/home/bazk/emsdk/upstream/emscripten/em++  -DMSGPACK_DEFAULT_API_VERSION=3 -std=c++98    @CMakeFiles/class_intrusive_map.dir/objects1.rsp  -o class_intrusive_map.js 

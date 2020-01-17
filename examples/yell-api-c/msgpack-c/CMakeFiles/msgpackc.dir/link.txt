@@ -1,0 +1,1 @@
+/home/bazk/emsdk/upstream/emscripten/emar rc libmsgpackc.a  @CMakeFiles/msgpackc.dir/objects1.rsp

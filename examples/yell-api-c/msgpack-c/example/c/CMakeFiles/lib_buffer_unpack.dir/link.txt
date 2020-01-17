@@ -1,0 +1,1 @@
+/home/bazk/emsdk/upstream/emscripten/emcc    @CMakeFiles/lib_buffer_unpack.dir/objects1.rsp  -o lib_buffer_unpack.js @CMakeFiles/lib_buffer_unpack.dir/linklibs.rsp

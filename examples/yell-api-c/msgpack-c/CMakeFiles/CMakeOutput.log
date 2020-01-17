@@ -1,0 +1,30 @@
+The target system is: Emscripten - 1 - x86
+The host system is: Linux - 4.15.0-1057-aws - x86_64
+Determining if the pthread_create exist passed with the following output:
+Change Dir: /home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_ae031/fast"
+/usr/bin/make -f CMakeFiles/cmTC_ae031.dir/build.make CMakeFiles/cmTC_ae031.dir/build
+make[1]: Entering directory '/home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_ae031.dir/CheckSymbolExists.c.o
+/home/bazk/emsdk/upstream/emscripten/emcc    -o CMakeFiles/cmTC_ae031.dir/CheckSymbolExists.c.o   -c /home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_ae031.js
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ae031.dir/link.txt --verbose=1
+/home/bazk/emsdk/upstream/emscripten/emcc      @CMakeFiles/cmTC_ae031.dir/objects1.rsp  -o cmTC_ae031.js 
+make[1]: Leaving directory '/home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp'
+
+File /home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+

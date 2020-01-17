@@ -1,0 +1,30 @@
+Performing C++ SOURCE FILE Test MSGPACK_ENABLE_GCC_CXX_ATOMIC failed with the following output:
+Change Dir: /home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_03379/fast"
+/usr/bin/make -f CMakeFiles/cmTC_03379.dir/build.make CMakeFiles/cmTC_03379.dir/build
+make[1]: Entering directory '/home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_03379.dir/src.cxx.o
+/home/bazk/emsdk/upstream/emscripten/em++    -DMSGPACK_DEFAULT_API_VERSION=3 -std=c++98  -DMSGPACK_ENABLE_GCC_CXX_ATOMIC   -o CMakeFiles/cmTC_03379.dir/src.cxx.o -c /home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp/src.cxx
+/home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'bits/atomicity.h' file not found
+#include <bits/atomicity.h>
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+shared:ERROR: '/home/bazk/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -D__EMSCRIPTEN_major__=1 -D__EMSCRIPTEN_minor__=39 -D__EMSCRIPTEN_tiny__=5 -D_LIBCPP_ABI_VERSION=2 -Dunix -D__unix -D__unix__ -Werror=implicit-function-declaration -Xclang -nostdsysteminc -Xclang -isystem/home/bazk/emsdk/upstream/emscripten/system/include/libcxx -Xclang -isystem/home/bazk/emsdk/upstream/emscripten/system/lib/libcxxabi/include -Xclang -isystem/home/bazk/emsdk/upstream/emscripten/system/include/compat -Xclang -isystem/home/bazk/emsdk/upstream/emscripten/system/include -Xclang -isystem/home/bazk/emsdk/upstream/emscripten/system/include/libc -Xclang -isystem/home/bazk/emsdk/upstream/emscripten/system/lib/libc/musl/arch/emscripten -Xclang -isystem/home/bazk/emsdk/upstream/emscripten/system/local/include -Xclang -isystem/home/bazk/.emscripten_cache/wasm-obj/include -DMSGPACK_DEFAULT_API_VERSION=3 -std=c++98 -DMSGPACK_ENABLE_GCC_CXX_ATOMIC -c -DEMSCRIPTEN /home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp/src.cxx -Xclang -isystem/home/bazk/emsdk/upstream/emscripten/system/include/SDL -c -o CMakeFiles/cmTC_03379.dir/src.cxx.o -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr' failed (1)
+CMakeFiles/cmTC_03379.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_03379.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_03379.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/bazk/projects/gatewasi/examples/yell-api-c/msgpack-c/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_03379/fast' failed
+make: *** [cmTC_03379/fast] Error 2
+
+Source file was:
+
+#include <bits/atomicity.h>
+int atomic_sub(int i) { return __gnu_cxx::__exchange_and_add(&i, -1) - 1; }
+int atomic_add(int i) { return __gnu_cxx::__exchange_and_add(&i, 1) + 1; }
+int main(int argc, char * argv[])
+{
+    atomic_sub(1);
+    atomic_add(1);
+}
+

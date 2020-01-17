@@ -1,0 +1,1 @@
+/home/bazk/emsdk/upstream/emscripten/em++  -DMSGPACK_DEFAULT_API_VERSION=3 -std=c++98    @CMakeFiles/map_based_versionup.dir/objects1.rsp  -o map_based_versionup.js 

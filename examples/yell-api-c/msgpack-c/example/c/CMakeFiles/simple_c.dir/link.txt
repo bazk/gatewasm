@@ -1,0 +1,1 @@
+/home/bazk/emsdk/upstream/emscripten/emcc    @CMakeFiles/simple_c.dir/objects1.rsp  -o simple_c.js @CMakeFiles/simple_c.dir/linklibs.rsp
