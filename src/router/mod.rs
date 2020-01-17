@@ -2,7 +2,7 @@ mod error;
 mod route;
 
 use arc_swap::ArcSwap;
-use hyper::{Body, Request, Response, StatusCode};
+use hyper::{body, Body, Request, Response, StatusCode};
 use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -71,17 +71,24 @@ pub async fn handle_request(
     let router = router.load();
 
     match router.find(&RouteMethod::from_hyper(&req.method()), req.uri().path()) {
-        Some(handler) => match handler.run() {
-            Ok(ret) => Ok(Response::builder()
-                .body(Body::from(json!({ "result": ret }).to_string()))
-                .unwrap()),
-            Err(error) => Ok(Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::from(
-                    json!({ "error": format!("{}", error) }).to_string(),
-                ))
-                .unwrap()),
-        },
+        Some(handler) => {
+            let bytes = body::to_bytes(req.into_body()).await?;
+            let content = String::from_utf8(bytes.to_vec())?;
+            match serde_json::from_str::<serde_json::Value>(&content) {
+                Ok(body) => match handler.run::<serde_json::Value, serde_json::Value>(&body) {
+                    Ok(ret) => Ok(Response::builder()
+                        .body(Body::from(ret.to_string()))
+                        .unwrap()),
+                    Err(error) => Ok(Response::builder()
+                        .status(StatusCode::INTERNAL_SERVER_ERROR)
+                        .body(Body::from(
+                            json!({ "error": format!("{}", error) }).to_string(),
+                        ))
+                        .unwrap()),
+                },
+                Err(err) => Err(Box::new(err)),
+            }
+        }
         None => {
             // Return 404 not found response.
             Ok(Response::builder()

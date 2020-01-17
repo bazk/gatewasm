@@ -1,5 +1,5 @@
 [package]
-name = "gatewasi"
+name = "gatewasm"
 version = "0.1.0"
 authors = ["bazk"]
 edition = "2018"
@@ -7,13 +7,15 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-hyper = "^0.13.1"
-tokio = { version = "0.2", features = ["full"] }
+arc-swap = "^0.4.4"
+base64 = "^0.11.0"
+err-derive = "^0.2.1"
 futures = "^0.3.1"
 futures-util = "^0.3.1"
+hyper = "^0.13.1"
+rmp-serde = "^0.14.0"
 serde = { version = "^1.0.104", features = ["derive"] }
 serde_json = "^1.0.44"
-arc-swap = "^0.4.4"
-err-derive = "^0.2.1"
-wasmer-runtime = "^0.12.0"
-base64 = "^0.11.0"
+tokio = { version = "0.2", features = ["full"] }
+wasmer-runtime = "^0.13.0"
+wasmer-wasi = "^0.13.0"

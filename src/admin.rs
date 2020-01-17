@@ -55,12 +55,6 @@ pub async fn handle_request(
                                 json!({ "error": format!("{}", error) }).to_string(),
                             ))
                             .unwrap()),
-                        RouterError::HandlerExecutionFailed => Ok(Response::builder()
-                            .status(StatusCode::INTERNAL_SERVER_ERROR)
-                            .body(Body::from(
-                                json!({ "error": format!("{}", error) }).to_string(),
-                            ))
-                            .unwrap()),
                     },
                 }
             }
