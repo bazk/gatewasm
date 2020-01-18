@@ -31,9 +31,17 @@ pub async fn handle_request(
     let router = router_arc.load();
 
     match (req.method(), req.uri().path()) {
-        (&Method::GET, "/routes") => Ok(Response::new(Body::from(serde_json::to_string(
-            &router.routes,
-        )?))),
+        (&Method::GET, "/routes") => Ok(Response::builder()
+            .status(StatusCode::OK)
+            .header("Access-Control-Allow-Origin", "*")
+            .header(
+                "Access-Control-Allow-Methods",
+                "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+            )
+            .header("Access-Control-Allow-Headers", "Content-Type")
+            .header("Access-Control-Max-Age", "600")
+            .body(Body::from(serde_json::to_string(&router.routes)?))
+            .unwrap()),
         (&Method::POST, "/routes") => match CreateRouteRequest::new(req).await {
             Ok(create_request) => {
                 let route = Route {
@@ -46,11 +54,28 @@ pub async fn handle_request(
                 match new_router.add(route.clone()) {
                     Ok(_) => {
                         router_arc.store(Arc::new(new_router));
-                        Ok(Response::new(Body::from(serde_json::to_string(&route)?)))
+                        Ok(Response::builder()
+                            .status(StatusCode::OK)
+                            .header("Access-Control-Allow-Origin", "*")
+                            .header(
+                                "Access-Control-Allow-Methods",
+                                "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                            )
+                            .header("Access-Control-Allow-Headers", "Content-Type")
+                            .header("Access-Control-Max-Age", "600")
+                            .body(Body::from(serde_json::to_string(&route)?))
+                            .unwrap())
                     }
                     Err(error) => match error {
                         RouterError::RouteAlreadyExists => Ok(Response::builder()
                             .status(StatusCode::CONFLICT)
+                            .header("Access-Control-Allow-Origin", "*")
+                            .header(
+                                "Access-Control-Allow-Methods",
+                                "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                            )
+                            .header("Access-Control-Allow-Headers", "Content-Type")
+                            .header("Access-Control-Max-Age", "600")
                             .body(Body::from(
                                 json!({ "error": format!("{}", error) }).to_string(),
                             ))
@@ -60,11 +85,29 @@ pub async fn handle_request(
             }
             Err(error) => Ok(Response::builder()
                 .status(StatusCode::BAD_REQUEST)
+                .header("Access-Control-Allow-Origin", "*")
+                .header(
+                    "Access-Control-Allow-Methods",
+                    "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                )
+                .header("Access-Control-Allow-Headers", "Content-Type")
+                .header("Access-Control-Max-Age", "600")
                 .body(Body::from(
                     json!({ "error": format!("{}", error) }).to_string(),
                 ))
                 .unwrap()),
         },
+        (&Method::OPTIONS, _) => Ok(Response::builder()
+            .status(StatusCode::NO_CONTENT)
+            .header("Access-Control-Allow-Origin", "*")
+            .header(
+                "Access-Control-Allow-Methods",
+                "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+            )
+            .header("Access-Control-Allow-Headers", "Content-Type")
+            .header("Access-Control-Max-Age", "600")
+            .body(Body::empty())
+            .unwrap()),
         _ => {
             // Return 404 not found response.
             Ok(Response::builder()
