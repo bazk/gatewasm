@@ -8,10 +8,7 @@ import CreateRouteModal from "../CreateRouteModal/CreateRouteModal";
 import CreateRouteUseCase from "../../domain/useCases/CreateRouteUseCase";
 import ListRoutesUseCase from "../../domain/useCases/ListRoutesUseCase";
 import Loader from "../Loader/Loader";
-
-const Wrapper = styled.div`
-  margin: 8px;
-`;
+import Container from "../Container/Container";
 
 function groupBy(data, fn) {
   return data.reduce((obj, value) => {
@@ -78,7 +75,7 @@ function Main({ gatewasmService }) {
         onRetry={listRoutes}
       />
       {routes.data && (
-        <Wrapper>
+        <Container>
           <Tabs>
             <Tab title="Configuration">
               <TreeArea>{<Tree data={routes.data} />}</TreeArea>
@@ -100,7 +97,7 @@ function Main({ gatewasmService }) {
               />
             </Tab>
           </Tabs>
-        </Wrapper>
+        </Container>
       )}
     </Fragment>
   );

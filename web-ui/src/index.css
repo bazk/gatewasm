@@ -24,7 +24,7 @@ body {
   flex-direction: column;
   flex-grow: 1;
   background: #55aaaa;
-  margin: 0;
+  margin: 8px;
 }
 
 #root {
