@@ -1,12 +1,43 @@
 @import "reset.css";
 
-body {
-  background: #55aaaa;
-  font-family: 'Franklin Gothic', Arial, sans-serif;
-  font-size: 12px;
-  line-height: 1.5;
+@font-face {
+  font-family: 'MS Sans Serif';
+  src: url('./assets/fonts/MS-Sans-Serif.eot');
+  src: url('./assets/fonts/MS-Sans-Serif.woff2') format('woff2'),
+    url('./assets/fonts/MS-Sans-Serif.woff') format('woff'),
+    url('./assets/fonts/MS-Sans-Serif.ttf') format('truetype'),
+    url('./assets/fonts/MS-Sans-Serif.eot?#iefix') format('embedded-opentype');
+  font-weight: normal;
+  font-style: normal;
 }
 
-button {
-  font-family: 'Franklin Gothic', Arial, sans-serif;
+html {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background: #55aaaa;
+  margin: 0;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  font-family: "MS Sans Serif";
+  font-size: 12px;
+  line-height: 18px;
+  box-sizing: border-box;
+}
+
+button, input, select {
+  font-family: 'MS Sans Serif', 'Franklin Gothic', Arial, sans-serif;
 }

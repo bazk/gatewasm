@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Fragment } from "react";
 import styled from "styled-components";
 import { Tabs, Tab, Tree, Button } from "@react95/core";
 
@@ -7,6 +7,7 @@ import TriggeredModal from "../TriggeredModal/TriggeredModal";
 import CreateRouteModal from "../CreateRouteModal/CreateRouteModal";
 import CreateRouteUseCase from "../../domain/useCases/CreateRouteUseCase";
 import ListRoutesUseCase from "../../domain/useCases/ListRoutesUseCase";
+import Loader from "../Loader/Loader";
 
 const Wrapper = styled.div`
   margin: 8px;
@@ -69,33 +70,39 @@ function Main({ gatewasmService }) {
     new CreateRouteUseCase(gatewasmService).execute(data);
 
   return (
-    <Wrapper>
-      <Tabs>
-        <Tab title="Configuration">
-          <TreeArea>
-            {routes.loading && <p>loading...</p>}
-            {routes.error && <p>something went wrong</p>}
-            {routes.data && <Tree data={routes.data} />}
-          </TreeArea>
+    <Fragment>
+      <Loader
+        modalTitle="Initialization"
+        loading={routes.loading}
+        error={routes.error}
+        onRetry={listRoutes}
+      />
+      {routes.data && (
+        <Wrapper>
+          <Tabs>
+            <Tab title="Configuration">
+              <TreeArea>{<Tree data={routes.data} />}</TreeArea>
 
-          <TriggeredModal
-            trigger={openModal => (
-              <Button onClick={openModal}>New Route</Button>
-            )}
-            modal={closeModal => (
-              <CreateRouteModal
-                onSubmit={data =>
-                  createRoute(data)
-                    .then(listRoutes)
-                    .then(closeModal)
-                }
-                onClose={closeModal}
+              <TriggeredModal
+                trigger={openModal => (
+                  <Button onClick={openModal}>New Route</Button>
+                )}
+                modal={closeModal => (
+                  <CreateRouteModal
+                    onSubmit={data =>
+                      createRoute(data)
+                        .then(listRoutes)
+                        .then(closeModal)
+                    }
+                    onClose={closeModal}
+                  />
+                )}
               />
-            )}
-          />
-        </Tab>
-      </Tabs>
-    </Wrapper>
+            </Tab>
+          </Tabs>
+        </Wrapper>
+      )}
+    </Fragment>
   );
 }
 
