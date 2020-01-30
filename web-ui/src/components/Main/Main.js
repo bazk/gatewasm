@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, Fragment } from "react";
 import styled from "styled-components";
-import { Tabs, Tab, Tree, Button } from "@react95/core";
+import { Tabs, Tab, Tree, Button, Icon } from "@react95/core";
 
 import TreeArea from "../TreeArea/TreeArea";
 import TriggeredModal from "../TriggeredModal/TriggeredModal";
@@ -9,6 +9,20 @@ import CreateRouteUseCase from "../../domain/useCases/CreateRouteUseCase";
 import ListRoutesUseCase from "../../domain/useCases/ListRoutesUseCase";
 import Loader from "../Loader/Loader";
 import Container from "../Container/Container";
+
+const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-family: "Press Start 2P", cursive;
+  color: #fff;
+  font-size: 13px;
+  line-height: 100%;
+
+  > :last-child {
+    margin-left: 12px;
+  }
+`;
 
 function groupBy(data, fn) {
   return data.reduce((obj, value) => {
@@ -76,6 +90,10 @@ function Main({ gatewasmService }) {
       />
       {routes.data && (
         <Container>
+          <Logo>
+            AW95S GateWASM
+            <Icon name="computer" />
+          </Logo>
           <Tabs>
             <Tab title="Configuration">
               <TreeArea>{<Tree data={routes.data} />}</TreeArea>
