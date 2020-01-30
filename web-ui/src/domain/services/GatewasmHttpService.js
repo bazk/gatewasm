@@ -14,7 +14,9 @@ export default class GatewasmHttpService {
 
   async createRoute({ path, method, handler }) {
     const buffer = await handler.arrayBuffer();
-    const code = window.btoa(buffer);
+    const code = window.btoa(
+      String.fromCharCode.apply(null, new Uint8Array(buffer))
+    );
 
     const response = await fetch("http://eyrie.bazk.me:8900/routes", {
       method: "POST",
